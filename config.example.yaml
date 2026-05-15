@@ -1,0 +1,161 @@
+# GatherAgent Configuration
+# Global: ~/.gather/config.yaml
+# Project: <workspace>/.gather/config.yaml
+# Profile: gather -p <name> → ~/.gather/profiles/<name>/config.yaml
+
+# ── Model ──────────────────────────────────────────────
+model:
+  default: "gpt-4o"
+  provider: "openai"  # openai | anthropic | openrouter | ollama | custom
+  base_url: null      # Override API base URL
+  thinking: "off"     # off | high | max (for reasoning models)
+  auto_mode: false    # Three-layer smart routing
+  failover:
+    enabled: true
+    chain: ["openai", "anthropic", "openrouter"]  # Failover order
+    retry_count: 2
+    cooldown_seconds: 30
+
+  # Auxiliary routing — per-task model assignment (from Hermes-Agent)
+  auxiliary:
+    curator:
+      model: "gpt-4o-mini"
+      provider: "openai"
+    vision:
+      model: "gpt-4o"
+      provider: "openai"
+    embedding:
+      model: "text-embedding-3-small"
+      provider: "openai"
+    title_generation:
+      model: "gpt-4o-mini"
+    session_search:
+      model: "gpt-4o-mini"
+
+# ── Agent ──────────────────────────────────────────────
+agent:
+  max_iterations: 90        # Hard cap on API calls (from Hermes-Agent)
+  iteration_budget: null    # Token budget (null = unlimited)
+  grace_call: true          # One final call after budget exhaustion
+  mode: "agent"             # plan | agent | yolo | sandbox
+  auto_compact: false       # Auto context compression at 80%
+  compact_threshold: 0.8
+
+# ── Delegation ─────────────────────────────────────────
+delegation:
+  enabled: true
+  max_concurrent_children: 5    # Concurrent sub-agents (from DeepSeek-TUI)
+  max_spawn_depth: 2            # Orchestrator nesting depth (from Hermes-Agent)
+  child_timeout_seconds: 300
+  orchestrator_enabled: true
+  subagent_auto_approve: false
+
+# ── Memory ─────────────────────────────────────────────
+memory:
+  provider: "simple"        # simple | vector_db | wiki | honcho
+  user_modeling: false      # Honcho dialectic user modeling (from Hermes-Agent)
+  session_search: true      # FTS5 full-text search across sessions
+  prefetch_on_turn: true    # Pre-fetch relevant memories before each turn
+
+# ── Curator (Skill Lifecycle) ──────────────────────────
+curator:
+  enabled: true
+  interval_hours: 24
+  min_idle_hours: 48
+  stale_after_days: 30
+  archive_after_days: 90
+  backup:
+    enabled: true
+    max_snapshots: 5
+
+# ── Skills ─────────────────────────────────────────────
+skills:
+  auto_discover: true       # Scan skill directories on startup
+  install_sources:          # Where to discover installable skills
+    - "github"              # github:<owner>/<repo>
+    - "marketplace"         # Nexus marketplace
+  strict_standards: true    # Enforce Hermes-quality standards
+
+# ── Sandbox ────────────────────────────────────────────
+sandbox:
+  mode: "auto"              # auto | os | container | disabled
+  # auto: OS-level on local, container on gateway
+  os_level:                 # From DeepSeek-TUI / Codex
+    enabled: true
+    allow_network: false
+  container:                # From Hermes-Agent / OpenClaw
+    backend: "docker"       # docker | ssh | modal | daytona
+    image: "gather-agent-sandbox:latest"
+    workspace_mount: true
+
+# ── Session ────────────────────────────────────────────
+session:
+  storage: "sqlite"         # sqlite | file
+  side_git_snapshots: true  # Auto-snapshot before/after each turn (from DeepSeek-TUI)
+  fork_enabled: true        # Allow session forking
+  snapshot_retention: 50    # Max snapshots per session
+
+# ── Gateway ────────────────────────────────────────────
+gateway:
+  enabled: false
+  port: 18789
+  platforms:
+    telegram:
+      enabled: false
+      dm_policy: "pairing"  # open | pairing | closed
+    discord:
+      enabled: false
+      dm_policy: "pairing"
+    slack:
+      enabled: false
+  multi_agent_routing: false  # Route channels to different agent profiles
+
+# ── Kanban ─────────────────────────────────────────────
+kanban:
+  enabled: false
+  dispatch_interval_seconds: 60
+  claim_timeout_seconds: 300
+  max_consecutive_failures: 5
+
+# ── TUI ────────────────────────────────────────────────
+tui:
+  theme: "default"          # default | catppuccin | tokyo_night | dracula | gruvbox | slate
+  locale: "auto"            # auto | en | zh-Hans | ja | pt-BR
+  thinking_display: true    # Show reasoning blocks
+
+# ── Display ────────────────────────────────────────────
+display:
+  skin: "default"           # Skin engine (from Hermes-Agent)
+  cost_tracking: true       # Per-turn and session cost estimates (from DeepSeek-TUI)
+  prefix_cache_telemetry: true  # Cache hit/miss breakdown
+  currency: "auto"          # auto (follows locale) | USD | CNY | EUR
+
+# ── Security ───────────────────────────────────────────
+security:
+  approval_mode: "agent"    # plan (read-only) | agent (approval gate) | yolo (auto) | sandbox
+  dm_pairing: true          # Require pairing for unknown DM senders
+  audit_trail: true         # Log all tool executions
+
+# ── Cron ───────────────────────────────────────────────
+cron:
+  enabled: false
+  hard_interrupt_seconds: 180  # 3-minute hard interrupt (from Hermes-Agent)
+  catchup_window_seconds: 300
+
+# ── Profiles ───────────────────────────────────────────
+profiles:
+  # gather -p coder → uses config from ~/.gather/profiles/coder/
+  # gather -p writer → uses config from ~/.gather/profiles/writer/
+
+# ── Plugins ────────────────────────────────────────────
+plugins:
+  auto_discover: true       # Scan ~/.gather/plugins/ and pip entry points
+  directories:
+    - "~/.gather/plugins"
+    - "./.gather/plugins"
+
+# ── Logging ────────────────────────────────────────────
+logging:
+  level: "INFO"             # DEBUG | INFO | WARNING | ERROR
+  file: "agent.log"
+  errors_file: "errors.log"

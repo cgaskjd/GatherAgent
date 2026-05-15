@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  gather:
+    build: .
+    env_file: .env
+    ports:
+      - "18789:18789"
+    volumes:
+      - ./workspace:/workspace
+    command: gateway start
