@@ -1,10 +1,10 @@
-"""GatherAgent TUI Widgets — Chat display, input, status bar, tool visualization."""
+"""GatherAgent TUI Widgets -- Chat display, input, status bar, tool visualization, model picker."""
 
 from __future__ import annotations
 
 import time
 from textual.widgets import Static, Input, RichLog
-from textual.containers import Horizontal, Vertical
+from textual.containers import Horizontal, Vertical, Center
 from textual.message import Message
 from textual import events
 from rich.text import Text
@@ -197,6 +197,115 @@ class ChatInput(Horizontal):
         self._input.placeholder = text
 
 
+class ModelInputDialog(Vertical):
+    """Modal dialog for entering a custom model name and provider."""
+
+    class ModelSet(Message):
+        """Posted when user confirms a custom model."""
+        def __init__(self, model: str, provider: str) -> None:
+            self.model = model
+            self.provider = provider
+            super().__init__()
+
+    DEFAULT_CSS = """
+    ModelInputDialog {
+        dock: top;
+        height: auto;
+        max-height: 60%;
+        margin: 1 4;
+        padding: 1 2;
+        background: $surface 95%;
+        border: tall $primary;
+        display: none;
+    }
+    ModelInputDialog.visible {
+        display: block;
+    }
+    ModelInputDialog Input {
+        margin: 0 0 1 0;
+    }
+    """
+
+    # Common provider base URLs for hints
+    PROVIDER_HINTS = {
+        "openai": ["gpt-5.5", "gpt-5.5-pro", "gpt-5", "gpt-4o", "o3-mini"],
+        "anthropic": ["claude-opus-4-7", "claude-sonnet-4-6", "claude-haiku-4-5"],
+        "openrouter": ["google/gemini-2.5-pro", "deepseek/deepseek-v4-pro", "meta-llama/llama-4-maverick", "qwen/qwen-3-235b-a22b"],
+        "ollama": ["qwen3:8b", "llama4:8b", "deepseek-r2:8b"],
+    }
+
+    def __init__(self, current_model: str = "gpt-4o", current_provider: str = "openai", **kwargs):
+        super().__init__(**kwargs)
+        self._current_model = current_model
+        self._current_provider = current_provider
+
+    def compose(self):
+        yield Static(Text("Custom Model", style="bold cyan"))
+        yield Static("Model name (e.g. gpt-5.5, claude-opus-4-7, deepseek/deepseek-v4-pro):")
+        self._model_input = Input(
+            value=self._current_model,
+            placeholder="model name",
+            id="model-name-input",
+        )
+        yield self._model_input
+        yield Static("Provider (openai / anthropic / openrouter / ollama / custom):")
+        self._provider_input = Input(
+            value=self._current_provider,
+            placeholder="provider",
+            id="provider-input",
+        )
+        yield self._provider_input
+        yield Static("Press Enter to confirm, Escape to cancel", style="dim")
+
+    def on_mount(self):
+        self._model_input.focus()
+
+    def on_input_submitted(self, event: Input.Submitted):
+        model = self._model_input.value.strip()
+        provider = self._provider_input.value.strip()
+        if not model:
+            return
+        if not provider:
+            # Auto-detect provider from model name
+            provider = self._detect_provider(model)
+        self.post_message(self.ModelSet(model, provider))
+        self.hide()
+
+    def on_key(self, event: events.Key):
+        if event.key == "escape":
+            self.hide()
+            event.prevent_default()
+
+    def show(self, current_model: str = None, current_provider: str = None):
+        if current_model:
+            self._model_input.value = current_model
+        if current_provider:
+            self._provider_input.value = current_provider
+        self.add_class("visible")
+        self._model_input.focus()
+
+    def hide(self):
+        self.remove_class("visible")
+
+    @classmethod
+    def _detect_provider(cls, model: str) -> str:
+        """Auto-detect provider from model name patterns."""
+        model_lower = model.lower()
+        if model_lower.startswith(("gpt-", "o1", "o3", "dall-e", "whisper", "tts")):
+            return "openai"
+        if model_lower.startswith(("claude-", "claude ")):
+            return "anthropic"
+        if "/" in model_lower:
+            # OpenRouter format: provider/model
+            return "openrouter"
+        if model_lower.startswith(("gemini-", "gemma-")):
+            return "openrouter"
+        if ":" in model_lower:
+            # Ollama format: model:tag
+            return "ollama"
+        return "openai"
+
+
 class HelpOverlay(Static):
     """Help overlay showing keyboard shortcuts."""
 
@@ -214,5 +323,6 @@ class HelpOverlay(Static):
         table.add_row("Ctrl+H", "Toggle this help")
         table.add_row("Ctrl+T", "Switch theme")
         table.add_row("Ctrl+M", "Switch model (16 presets)")
+        table.add_row("Ctrl+Shift+M", "Set custom model")
         table.add_row("Up/Down", "Navigate input history")
         self.update(Panel(table, border_style="cyan"))

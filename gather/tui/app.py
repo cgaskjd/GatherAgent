@@ -22,7 +22,7 @@ from textual.widgets import Header, Footer, Static
 from textual.reactive import reactive
 from textual import work
 
-from gather.tui.widgets import StatusBar, ChatMessage, ChatInput, ThinkingIndicator, HelpOverlay
+from gather.tui.widgets import StatusBar, ChatMessage, ChatInput, ThinkingIndicator, HelpOverlay, ModelInputDialog
 from gather.tui.theme import ThemeEngine, BUILTIN_THEMES
 from gather.tui.i18n import I18n
 
@@ -118,6 +118,7 @@ Screen {
         Binding("ctrl+h", "toggle_help", "Help"),
         Binding("ctrl+t", "next_theme", "Theme"),
         Binding("ctrl+m", "switch_model", "Model"),
+        Binding("ctrl+shift+m", "custom_model", "Custom Model"),
     ]
 
     TITLE = "GatherAgent"
@@ -187,6 +188,7 @@ Screen {
         yield StatusBar(id="status-bar")
         with Vertical(id="main-container"):
             yield HelpOverlay(id="help-overlay")
+            yield ModelInputDialog(id="model-dialog")
             yield ThinkingIndicator(id="thinking-indicator")
             with VerticalScroll(id="chat-area"):
                 pass  # Messages will be added dynamically
@@ -225,7 +227,7 @@ Screen {
         self._apply_theme(name)
         self._add_system_message(f"Theme: {name}")
 
-    # ── Model Switching ──────────────────────────────────
+    # ── Model Switching (preset cycle) ──────────────────
 
     def action_switch_model(self):
         """Cycle through model presets with Ctrl+M."""
@@ -239,6 +241,30 @@ Screen {
 
         self._add_system_message(f"Switched to: {label} ({provider})")
         self._update_status()
+
+    # ── Custom Model Input ───────────────────────────────
+
+    def action_custom_model(self):
+        """Open custom model dialog with Ctrl+Shift+M."""
+        dialog = self.query_one("#model-dialog", ModelInputDialog)
+        dialog.show(
+            current_model=self._model_override or "gpt-4o",
+            current_provider=self._provider_override or "openai",
+        )
+
+    def on_model_input_dialog_model_set(self, event: ModelInputDialog.ModelSet):
+        """Handle custom model set from dialog."""
+        self._model_override = event.model
+        self._provider_override = event.provider
+
+        # Reset agent so next call uses new model
+        self._agent = None
+
+        self._add_system_message(f"Custom model: {event.model} ({event.provider})")
+        self._update_status()
+
+        # Return focus to chat input
+        self.query_one("#chat-input", ChatInput).focus_input()
 
     # ── Help Toggle ──────────────────────────────────────
 

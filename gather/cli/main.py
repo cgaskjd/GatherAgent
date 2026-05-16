@@ -4,8 +4,8 @@ from gather.config.profile import apply_profile
 
 
 @click.group(invoke_without_command=True)
-@click.option("--model", "-m", default=None, help="Model override")
-@click.option("--provider", default=None, help="Provider override")
+@click.option("--model", "-m", default=None, help="Model name (any model ID, e.g. gpt-5.5, claude-opus-4-7, deepseek/deepseek-v4-pro)")
+@click.option("--provider", default=None, help="Provider (openai/anthropic/openrouter/ollama/custom)")
 @click.option("--profile", "-p", default=None, help="Profile name")
 @click.option("--yolo", is_flag=True, help="Auto-approve all tools")
 @click.option("--tui", is_flag=True, help="Launch TUI (default if no prompt)")
@@ -105,9 +105,9 @@ def setup():
     if api_key:
         click.echo("✓ OpenAI API Key saved to .env")
 
-    model = click.prompt("Default model", default="gpt-4o")
+    model = click.prompt("Default model", default="gpt-5.5")
     provider = click.prompt("Default provider", default="openai",
-                           type=click.Choice(["openai", "anthropic", "openrouter"]))
+                           type=click.Choice(["openai", "anthropic", "openrouter", "ollama", "custom"]))
     mode = click.prompt("Default mode", default="agent",
                        type=click.Choice(["plan", "agent", "yolo", "sandbox"]))
 
@@ -175,10 +175,17 @@ def _check_pkg(name: str) -> str | None:
 def models():
     """List available model providers."""
     click.echo("Available Model Providers:")
-    click.echo("  • openai      — OpenAI (GPT-4o, GPT-4o-mini, etc.)")
-    click.echo("  • anthropic   — Anthropic (Claude Sonnet, Opus, etc.)")
-    click.echo("  • openrouter  — OpenRouter (multi-provider access)")
-    click.echo("\nSet via: gather --provider openai --model gpt-4o")
+    click.echo("  • openai      — OpenAI (GPT-5.5, GPT-5, GPT-4o, o3-mini)")
+    click.echo("  • anthropic   — Anthropic (Claude Opus 4.7, Sonnet 4.6, Haiku 4.5)")
+    click.echo("  • openrouter  — OpenRouter (Gemini, DeepSeek, Llama, Qwen, Mistral, etc.)")
+    click.echo("  • ollama      — Ollama (local models, e.g. qwen3:8b)")
+    click.echo("  • custom      — Custom base_url (set in config.yaml)")
+    click.echo("\nUsage:")
+    click.echo("  gather -m gpt-5.5 \"hello\"                        # OpenAI")
+    click.echo("  gather --provider anthropic -m claude-opus-4-7 \"hi\"  # Anthropic")
+    click.echo("  gather --provider openrouter -m deepseek/deepseek-v4-pro \"hi\"  # OpenRouter")
+    click.echo("  gather --provider ollama -m qwen3:8b \"hi\"        # Ollama local")
+    click.echo("\nOr use Ctrl+Shift+M in TUI to set any model interactively.")
 
 
 if __name__ == "__main__":
