@@ -204,7 +204,7 @@ class HelpOverlay(Static):
         super().__init__(**kwargs)
 
     def on_mount(self):
-        table = Table(box=box.SIMPLE, show_header=True, title="⌨️ Keyboard Shortcuts")
+        table = Table(box=box.SIMPLE, show_header=True, title="Keyboard Shortcuts")
         table.add_column("Key", style="bold cyan")
         table.add_column("Action", style="white")
         table.add_row("Enter", "Send message")
@@ -213,5 +213,6 @@ class HelpOverlay(Static):
         table.add_row("Ctrl+L", "Clear chat")
         table.add_row("Ctrl+H", "Toggle this help")
         table.add_row("Ctrl+T", "Switch theme")
+        table.add_row("Ctrl+M", "Switch model (9 presets)")
         table.add_row("Up/Down", "Navigate input history")
         self.update(Panel(table, border_style="cyan"))

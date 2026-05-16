@@ -117,6 +117,7 @@ Screen {
         Binding("ctrl+l", "clear_chat", "Clear"),
         Binding("ctrl+h", "toggle_help", "Help"),
         Binding("ctrl+t", "next_theme", "Theme"),
+        Binding("ctrl+m", "switch_model", "Model"),
     ]
 
     TITLE = "GatherAgent"
@@ -127,6 +128,19 @@ Screen {
     show_help: reactive[bool] = reactive(False)
     input_history: reactive[list] = reactive(lambda: [])
     history_pos: reactive[int] = reactive(-1)
+
+    # Model presets: (label, model_id, provider)
+    MODEL_PRESETS = [
+        ("GPT-4o",               "gpt-4o",                          "openai"),
+        ("GPT-4o Mini",          "gpt-4o-mini",                     "openai"),
+        ("o3-mini",              "o3-mini",                          "openai"),
+        ("Claude Sonnet 4",      "claude-sonnet-4-20250514",         "anthropic"),
+        ("Claude Opus 4",        "claude-opus-4-20250514",           "anthropic"),
+        ("Gemini 2.0 Flash",     "google/gemini-2.0-flash",          "openrouter"),
+        ("DeepSeek V3",          "deepseek/deepseek-chat",           "openrouter"),
+        ("Llama 3.3 70B",       "meta-llama/llama-3.3-70b-instruct", "openrouter"),
+        ("Qwen 2.5 72B",        "qwen/qwen-2.5-72b-instruct",       "openrouter"),
+    ]
 
     def __init__(
         self,
@@ -139,6 +153,7 @@ Screen {
         super().__init__(**kwargs)
         self._model_override = model
         self._provider_override = provider
+        self._model_index = 0
         self._profile = profile
         self._mode = mode
         self._agent = None
@@ -147,7 +162,14 @@ Screen {
         self._i18n = I18n()
         self._theme_names = list(BUILTIN_THEMES.keys())
         self._total_cost = 0.0
-        self._turn_count = 0
+        self._turn_count = 0.0
+
+        # Set initial model index to match override
+        if model:
+            for i, (_, m, p) in enumerate(self.MODEL_PRESETS):
+                if m == model and (not provider or p == provider):
+                    self._model_index = i
+                    break
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
@@ -167,8 +189,9 @@ Screen {
         self.query_one("#chat-input", ChatInput).focus_input()
         # Show welcome message
         self._add_system_message(self._i18n.t("welcome"))
+        model_label, _, _ = self.MODEL_PRESETS[self._model_index]
         self._add_system_message(
-            "Type your message and press Enter. Ctrl+H for help, Ctrl+Q to quit."
+            f"Model: {model_label} | Ctrl+M to switch, Ctrl+H for help, Ctrl+Q to quit."
         )
         # Initialize status bar
         self._update_status()
@@ -191,7 +214,22 @@ Screen {
         self._apply_theme(name)
         self._add_system_message(f"Theme: {name}")
 
-    # ── Help Toggle ────────────────────────────────────────
+    # ── Model Switching ──────────────────────────────────
+
+    def action_switch_model(self):
+        """Cycle through model presets with Ctrl+M."""
+        self._model_index = (self._model_index + 1) % len(self.MODEL_PRESETS)
+        label, model_id, provider = self.MODEL_PRESETS[self._model_index]
+        self._model_override = model_id
+        self._provider_override = provider
+
+        # Reset agent so next call uses new model
+        self._agent = None
+
+        self._add_system_message(f"Switched to: {label} ({provider})")
+        self._update_status()
+
+    # ── Help Toggle ──────────────────────────────────────
 
     def action_toggle_help(self):
         self.show_help = not self.show_help
@@ -355,7 +393,7 @@ Screen {
                 provider=self._provider_override or "openai",
                 mode=self._mode,
                 cost=self._total_cost,
-                turns=self._turn_count,
+                turns=int(self._turn_count),
             )
         except Exception:
             pass  # Widget may not be mounted yet
