@@ -213,6 +213,6 @@ class HelpOverlay(Static):
         table.add_row("Ctrl+L", "Clear chat")
         table.add_row("Ctrl+H", "Toggle this help")
         table.add_row("Ctrl+T", "Switch theme")
-        table.add_row("Ctrl+M", "Switch model (9 presets)")
+        table.add_row("Ctrl+M", "Switch model (16 presets)")
         table.add_row("Up/Down", "Navigate input history")
         self.update(Panel(table, border_style="cyan"))

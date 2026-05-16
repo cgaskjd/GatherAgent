@@ -131,15 +131,26 @@ Screen {
 
     # Model presets: (label, model_id, provider)
     MODEL_PRESETS = [
-        ("GPT-4o",               "gpt-4o",                          "openai"),
-        ("GPT-4o Mini",          "gpt-4o-mini",                     "openai"),
-        ("o3-mini",              "o3-mini",                          "openai"),
-        ("Claude Sonnet 4",      "claude-sonnet-4-20250514",         "anthropic"),
-        ("Claude Opus 4",        "claude-opus-4-20250514",           "anthropic"),
-        ("Gemini 2.0 Flash",     "google/gemini-2.0-flash",          "openrouter"),
-        ("DeepSeek V3",          "deepseek/deepseek-chat",           "openrouter"),
-        ("Llama 3.3 70B",       "meta-llama/llama-3.3-70b-instruct", "openrouter"),
-        ("Qwen 2.5 72B",        "qwen/qwen-2.5-72b-instruct",       "openrouter"),
+        # OpenAI
+        ("GPT-5.5",              "gpt-5.5",                          "openai"),
+        ("GPT-5.5 Pro",          "gpt-5.5-pro",                      "openai"),
+        ("GPT-5",                "gpt-5",                            "openai"),
+        ("GPT-4o",               "gpt-4o",                            "openai"),
+        ("o3-mini",              "o3-mini",                            "openai"),
+        # Anthropic
+        ("Claude Opus 4.7",      "claude-opus-4-7-20260424",          "anthropic"),
+        ("Claude Sonnet 4.6",    "claude-sonnet-4-6-20260205",        "anthropic"),
+        ("Claude Haiku 4.5",     "claude-haiku-4-5-20250514",         "anthropic"),
+        # OpenRouter — Google
+        ("Gemini 2.5 Pro",       "google/gemini-2.5-pro",             "openrouter"),
+        ("Gemini 3 Pro",         "google/gemini-3-pro",               "openrouter"),
+        # OpenRouter — DeepSeek
+        ("DeepSeek V4 Pro",      "deepseek/deepseek-v4-pro",          "openrouter"),
+        ("DeepSeek R2",          "deepseek/deepseek-r2",              "openrouter"),
+        # OpenRouter — Open source
+        ("Llama 4 Maverick",     "meta-llama/llama-4-maverick",       "openrouter"),
+        ("Qwen 3 235B",          "qwen/qwen-3-235b-a22b",             "openrouter"),
+        ("Mistral Large 3",      "mistralai/mistral-large-3",         "openrouter"),
     ]
 
     def __init__(

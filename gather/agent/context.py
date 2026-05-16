@@ -19,13 +19,21 @@ class ContextManager:
     # Model context window sizes
     MODEL_CONTEXT_WINDOWS = {
         # OpenAI
+        "gpt-5.5": 1_050_000, "gpt-5.5-pro": 1_050_000,
+        "gpt-5": 400_000, "gpt-5.1": 400_000,
         "gpt-4o": 128_000, "gpt-4o-mini": 128_000,
         "gpt-4-turbo": 128_000, "gpt-3.5-turbo": 16_000,
         "o1": 128_000, "o1-mini": 128_000, "o3-mini": 200_000,
         # Anthropic
-        "claude-sonnet-4-20250514": 200_000,
-        "claude-opus-4-20250514": 200_000,
-        "claude-3-5-haiku-20241022": 200_000,
+        "claude-opus-4-7": 200_000, "claude-opus-4-6": 200_000,
+        "claude-sonnet-4-6": 200_000, "claude-sonnet-4": 200_000,
+        "claude-haiku-4-5": 200_000, "claude-opus-4": 200_000,
+        # Google (via OpenRouter)
+        "gemini-3-pro": 1_000_000, "gemini-2.5-pro": 1_000_000,
+        "gemini-2.5-flash": 1_000_000, "gemini-2.0-flash": 1_000_000,
+        # DeepSeek
+        "deepseek-v4-pro": 128_000, "deepseek-r2": 128_000,
+        "deepseek-chat": 128_000,
         # Default fallback
         "default": 128_000,
     }
