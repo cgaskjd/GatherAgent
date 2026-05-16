@@ -6,29 +6,43 @@ from gather.config.profile import apply_profile
 @click.group(invoke_without_command=True)
 @click.option("--model", "-m", default=None, help="Model name (any model ID, e.g. gpt-5.5, claude-opus-4-7, deepseek/deepseek-v4-pro)")
 @click.option("--provider", default=None, help="Provider (openai/anthropic/openrouter/ollama/custom)")
+@click.option("--base-url", default=None, help="Custom API base URL (e.g. https://api.my-proxy.com/v1)")
+@click.option("--api-key", default=None, help="Custom API key (prefer env vars or config)")
 @click.option("--profile", "-p", default=None, help="Profile name")
 @click.option("--yolo", is_flag=True, help="Auto-approve all tools")
 @click.option("--tui", is_flag=True, help="Launch TUI (default if no prompt)")
 @click.argument("prompt", required=False)
 @click.pass_context
-def main(ctx, model, provider, profile, yolo, tui, prompt):
-    """GatherAgent — The convergence agent."""
+def main(ctx, model, provider, base_url, api_key, profile, yolo, tui, prompt):
+    """GatherAgent -- The convergence agent."""
     apply_profile(profile)
     mode = "yolo" if yolo else "agent"
 
+    # Set custom base_url/api_key as env overrides if provided
+    if api_key:
+        import os
+        # Route key to correct env var based on provider
+        key_env_map = {
+            "openai": "OPENAI_API_KEY",
+            "anthropic": "ANTHROPIC_API_KEY",
+            "openrouter": "OPENROUTER_API_KEY",
+        }
+        env_var = key_env_map.get(provider, "OPENAI_API_KEY")
+        os.environ[env_var] = api_key
+
     if prompt:
-        # One-shot mode: run agent directly and print result
         from gather.agent.core import GatherAgent, AgentMode
         agent_mode = AgentMode.YOLO if yolo else AgentMode.AGENT
         agent = GatherAgent(mode=agent_mode, model=model, provider=provider, profile=profile)
+        if base_url:
+            agent.set_base_url(base_url)
         result = asyncio.run(agent.run(prompt))
         click.echo(result)
     else:
-        # No prompt: launch TUI interactive chat
-        _launch_tui(model=model, provider=provider, profile=profile, mode=mode)
+        _launch_tui(model=model, provider=provider, profile=profile, mode=mode, base_url=base_url, api_key=api_key)
 
 
-def _launch_tui(model=None, provider=None, profile=None, mode="agent"):
+def _launch_tui(model=None, provider=None, profile=None, mode="agent", base_url=None, api_key=None):
     """Launch the Textual TUI interactive chat interface."""
     try:
         from gather.tui.app import GatherTUI
@@ -39,6 +53,10 @@ def _launch_tui(model=None, provider=None, profile=None, mode="agent"):
         return
 
     app = GatherTUI(model=model, provider=provider, profile=profile, mode=mode)
+    if base_url:
+        app._custom_base_url = base_url
+    if api_key:
+        app._custom_api_key = api_key
     app.run()
 
 

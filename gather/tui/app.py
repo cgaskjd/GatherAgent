@@ -166,6 +166,8 @@ Screen {
         self._model_override = model
         self._provider_override = provider
         self._model_index = 0
+        self._custom_base_url = None
+        self._custom_api_key = None
         self._profile = profile
         self._mode = mode
         self._agent = None
@@ -256,11 +258,18 @@ Screen {
         """Handle custom model set from dialog."""
         self._model_override = event.model
         self._provider_override = event.provider
+        self._custom_base_url = event.base_url
+        self._custom_api_key = event.api_key
 
         # Reset agent so next call uses new model
         self._agent = None
 
-        self._add_system_message(f"Custom model: {event.model} ({event.provider})")
+        msg = f"Custom model: {event.model} ({event.provider})"
+        if event.base_url:
+            msg += f" | URL: {event.base_url}"
+        if event.api_key:
+            msg += " | Key: ***"
+        self._add_system_message(msg)
         self._update_status()
 
         # Return focus to chat input

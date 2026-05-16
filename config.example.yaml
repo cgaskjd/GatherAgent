@@ -5,9 +5,10 @@
 
 # ── Model ──────────────────────────────────────────────
 model:
-  default: "gpt-4o"
+  default: "gpt-5.5"
   provider: "openai"  # openai | anthropic | openrouter | ollama | custom
-  base_url: null      # Override API base URL
+  base_url: null      # Override API base URL (e.g. https://api.my-proxy.com/v1)
+  api_key: null       # Override API key (prefer env vars or providers section below)
   thinking: "off"     # off | high | max (for reasoning models)
   auto_mode: false    # Three-layer smart routing
   failover:
@@ -31,6 +32,28 @@ model:
       model: "gpt-4o-mini"
     session_search:
       model: "gpt-4o-mini"
+
+# ── Provider API Keys & Endpoints ──────────────────────
+# Each provider can have its own api_key and base_url.
+# Priority: CLI arg > config.yaml > env var
+providers:
+  openai:
+    api_key: null           # Or set OPENAI_API_KEY env var
+    base_url: null          # e.g. https://api.openai.com/v1 (default)
+  anthropic:
+    api_key: null           # Or set ANTHROPIC_API_KEY env var
+    base_url: null
+  openrouter:
+    api_key: null           # Or set OPENROUTER_API_KEY env var
+    base_url: "https://openrouter.ai/api/v1"
+  ollama:
+    api_key: null           # Usually not needed
+    base_url: "http://localhost:11434/v1"
+  # Custom provider example — any OpenAI-compatible API
+  # my-proxy:
+  #   api_key: "sk-my-proxy-key"
+  #   base_url: "https://api.my-proxy.com/v1"
+  #   provider_type: "openai_compat"   # All OpenAI-compatible APIs use this
 
 # ── Agent ──────────────────────────────────────────────
 agent:

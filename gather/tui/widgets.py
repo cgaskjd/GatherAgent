@@ -198,20 +198,22 @@ class ChatInput(Horizontal):
 
 
 class ModelInputDialog(Vertical):
-    """Modal dialog for entering a custom model name and provider."""
+    """Modal dialog for entering a custom model, provider, base_url, and api_key."""
 
     class ModelSet(Message):
         """Posted when user confirms a custom model."""
-        def __init__(self, model: str, provider: str) -> None:
+        def __init__(self, model: str, provider: str, base_url: str | None = None, api_key: str | None = None) -> None:
             self.model = model
             self.provider = provider
+            self.base_url = base_url
+            self.api_key = api_key
             super().__init__()
 
     DEFAULT_CSS = """
     ModelInputDialog {
         dock: top;
         height: auto;
-        max-height: 60%;
+        max-height: 70%;
         margin: 1 4;
         padding: 1 2;
         background: $surface 95%;
@@ -232,6 +234,14 @@ class ModelInputDialog(Vertical):
         "anthropic": ["claude-opus-4-7", "claude-sonnet-4-6", "claude-haiku-4-5"],
         "openrouter": ["google/gemini-2.5-pro", "deepseek/deepseek-v4-pro", "meta-llama/llama-4-maverick", "qwen/qwen-3-235b-a22b"],
         "ollama": ["qwen3:8b", "llama4:8b", "deepseek-r2:8b"],
+    }
+
+    PROVIDER_DEFAULT_URLS = {
+        "openai": "",
+        "anthropic": "",
+        "openrouter": "https://openrouter.ai/api/v1",
+        "ollama": "http://localhost:11434/v1",
+        "custom": "",
     }
 
     def __init__(self, current_model: str = "gpt-4o", current_provider: str = "openai", **kwargs):
@@ -255,7 +265,22 @@ class ModelInputDialog(Vertical):
             id="provider-input",
         )
         yield self._provider_input
-        yield Static("Press Enter to confirm, Escape to cancel", style="dim")
+        yield Static("Base URL (leave empty for default, or set your own API endpoint):", classes="dim")
+        self._base_url_input = Input(
+            value="",
+            placeholder="e.g. https://api.my-proxy.com/v1 or http://localhost:11434/v1",
+            id="base-url-input",
+        )
+        yield self._base_url_input
+        yield Static("API Key (leave empty to use env var or config):", classes="dim")
+        self._api_key_input = Input(
+            value="",
+            placeholder="sk-... or your custom key",
+            password=True,
+            id="api-key-input",
+        )
+        yield self._api_key_input
+        yield Static("Enter to confirm | Escape to cancel | Tab to move between fields", style="dim")
 
     def on_mount(self):
         self._model_input.focus()
@@ -266,9 +291,10 @@ class ModelInputDialog(Vertical):
         if not model:
             return
         if not provider:
-            # Auto-detect provider from model name
             provider = self._detect_provider(model)
-        self.post_message(self.ModelSet(model, provider))
+        base_url = self._base_url_input.value.strip() or None
+        api_key = self._api_key_input.value.strip() or None
+        self.post_message(self.ModelSet(model, provider, base_url, api_key))
         self.hide()
 
     def on_key(self, event: events.Key):
@@ -281,6 +307,8 @@ class ModelInputDialog(Vertical):
             self._model_input.value = current_model
         if current_provider:
             self._provider_input.value = current_provider
+        self._base_url_input.value = ""
+        self._api_key_input.value = ""
         self.add_class("visible")
         self._model_input.focus()
 
@@ -296,12 +324,10 @@ class ModelInputDialog(Vertical):
         if model_lower.startswith(("claude-", "claude ")):
             return "anthropic"
         if "/" in model_lower:
-            # OpenRouter format: provider/model
             return "openrouter"
         if model_lower.startswith(("gemini-", "gemma-")):
             return "openrouter"
         if ":" in model_lower:
-            # Ollama format: model:tag
             return "ollama"
         return "openai"
 
