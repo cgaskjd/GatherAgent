@@ -2,36 +2,36 @@
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://python.org) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![GitHub](https://img.shields.io/badge/GitHub-CGaskjd%2FGatherAgent-black.svg)](https://github.com/CGaskjd/GatherAgent)
 
-> **聚六家之长，成一家之言** — The convergence agent born from a deep comparative analysis of 6 leading AI agent projects.
+> **Converging the best of six into one** — The AI agent born from a deep comparative analysis of 6 leading AI agent projects.
 
 ---
 
-## 🚀 一键安装
+## Quick Install
 
 ```bash
 pip install git+https://github.com/CGaskjd/GatherAgent.git
 ```
 
-安装完成即可使用：
+Start using immediately:
 
 ```bash
-gather "explain this function"       # 单次对话
-gather                               # 启动 TUI 交互界面
+gather "explain this function"       # One-shot query
+gather                               # Launch interactive TUI
 ```
 
 <details>
-<summary><b>📦 其他安装方式</b></summary>
+<summary><b>Other Install Methods</b></summary>
 
 ```bash
-# 克隆安装（开发者推荐）
+# Clone & editable install (recommended for developers)
 git clone https://github.com/CGaskjd/GatherAgent.git
 cd GatherAgent
 pip install -e ".[all]"
 
-# Linux/macOS 一键脚本
+# Linux/macOS one-line script
 bash scripts/install.sh
 
-# Windows 一键脚本
+# Windows one-line script
 powershell -ExecutionPolicy Bypass -File scripts/install.ps1
 
 # Docker
@@ -41,18 +41,18 @@ docker run --rm -it -e OPENAI_API_KEY -v "$PWD:/workspace" cgaskjd/gather-agent
 </details>
 
 <details>
-<summary><b>⚙️ 快速配置</b></summary>
+<summary><b>Quick Configuration</b></summary>
 
 ```bash
-# 设置 API 密钥（首次使用）
+# Set API key (first-time setup)
 export OPENAI_API_KEY=sk-xxx         # Linux/macOS
 set OPENAI_API_KEY=sk-xxx            # Windows CMD
 $env:OPENAI_API_KEY="sk-xxx"         # Windows PowerShell
 
-# 或使用交互式向导
+# Or use the interactive wizard
 gather setup
 
-# 检查环境
+# Check environment
 gather doctor
 ```
 
@@ -60,204 +60,202 @@ gather doctor
 
 ---
 
-## 💬 使用示例
+## Usage Examples
 
 ```bash
-# 基础用法
-gather "explain this function"           # 单次对话，输出结果
+# Basic usage
+gather "explain this function"           # One-shot query
 
-# 模型选择
-gather -m gpt-4o "fix this bug"          # 指定 OpenAI GPT-4o
-gather --provider anthropic "review"     # 使用 Claude Sonnet 4
-gather --provider openrouter -m google/gemini-2.0-flash "hi"  # OpenRouter 任意模型
+# Model selection
+gather -m gpt-4o "fix this bug"          # Specify OpenAI GPT-4o
+gather --provider anthropic "review"     # Use Claude Sonnet 4
+gather --provider openrouter -m google/gemini-2.0-flash "hi"  # Any model via OpenRouter
 
-# Auto 路由（Flash 预路由 → 智能选择模型+思考等级）
+# Auto routing (Flash pre-router -> smart model + thinking level)
 gather --model auto "refactor this module"
 
-# 运行模式
-gather --yolo "deploy it"                # YOLO 模式（自动审批所有工具）
-gather -p coder "implement API"          # Profile 隔离（独立配置/记忆/技能）
+# Run modes
+gather --yolo "deploy it"                # YOLO mode (auto-approve all tools)
+gather -p coder "implement API"          # Profile isolation (independent config/memory/skills)
 
-# TUI 交互界面（无参数时默认启动）
-gather                                   # 启动 TUI，6主题+4语言
+# Interactive TUI (default when no arguments)
+gather                                   # Launch TUI with 6 themes + 4 languages
 
-# 网关模式（Telegram/Discord/Slack）
+# Gateway mode (Telegram/Discord/Slack)
 gather gateway start
 
-# 内置命令
-gather setup                             # 交互式配置向导
-gather doctor                            # 检查环境和依赖
-gather models                            # 列出可用模型提供商
+# Built-in commands
+gather setup                             # Interactive setup wizard
+gather doctor                            # Check environment and dependencies
+gather models                            # List available model providers
 ```
 
 ---
 
-## 为什么需要 GatherAgent？
+## Why GatherAgent?
 
-| 痛点 | 现有项目的局限 | GatherAgent 的解法 |
+| Pain Point | Existing Limitation | GatherAgent Solution |
 |------|---------------|-------------------|
-| 模型路由单一 | DeepSeek-TUI 只有 Auto 路由，Hermes 只有 Auxiliary，OpenClaw 只有 Failover | **三层路由合一**：Auto + Auxiliary + Failover 逐层生效 |
-| 预算控制粗暴 | Codex 硬上限直接截断，Claude-Code 无 token 预算 | **三级预算**：max_iterations + token_budget + grace_call（宽限调用） |
-| 沙箱只覆盖一个层面 | DeepSeek-TUI/Codex 仅 OS 级，Hermes/OpenClaw 仅容器级 | **双层沙箱**：OS 级 + 容器级，按场景自动选择 |
-| 无闭环学习 | Claude-Code/Codex 的 Skill 创建后不再演进 | **Curator 生命周期**：创建→使用→改进→归档，永不过时 |
-| 会话不可逆 | Claude-Code 一旦改错无法回滚 | **Fork + Snapshot + Restore**：随时分叉、快照、回滚 |
-| 协作无结构 | ECC 的 60 个 Agent 无任务板 | **Kanban 看板**：SQLite 状态机 + Dispatcher + Worker |
-| 多平台隔离难 | 所有项目共用一套配置 | **Profile 多实例**：`gather -p coder` 完全隔离 |
-| 安全策略缺失 | Claude-Code 仅 yes/no 审批 | **DM 配对 + 审批门 + 审计日志** 三层安全 |
+| Single model routing | DeepSeek-TUI only has Auto, Hermes only Auxiliary, OpenClaw only Failover | **3-Layer Routing**: Auto + Auxiliary + Failover cascading |
+| Crude budget control | Codex hard-cuts at limit, Claude-Code has no token budget | **3-Level Budget**: max_iterations + token_budget + grace_call |
+| Single-layer sandbox | DeepSeek-TUI/Codex OS-level only, Hermes/OpenClaw container only | **Dual-Layer Sandbox**: OS-level + Container-level, auto-selected |
+| No closed-loop learning | Claude-Code/Codex skills never evolve after creation | **Curator Lifecycle**: Create > Use > Improve > Archive |
+| Irreversible sessions | Claude-Code can't rollback once a mistake is made | **Fork + Snapshot + Restore**: Branch, snapshot, rollback anytime |
+| Unstructured collaboration | ECC's 60 agents have no task board | **Kanban Board**: SQLite state machine + Dispatcher + Worker |
+| Hard multi-instance isolation | All projects share one config | **Profile Multi-Instance**: `gather -p coder` fully isolated |
+| Missing security policy | Claude-Code only yes/no approval | **DM Pairing + Approval Gate + Audit Log** triple security |
 
 ---
 
-## 六大项目特性对比
+## Feature Comparison Across 6 Projects
 
-| 特性 | DeepSeek-TUI | Claude-Code | Codex | ECC | Hermes-Agent | OpenClaw | **GatherAgent** |
+| Feature | DeepSeek-TUI | Claude-Code | Codex | ECC | Hermes-Agent | OpenClaw | **GatherAgent** |
 |------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **Auto 模型路由** | ✅ Flash 预路由 | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| **Auxiliary 任务路由** | ❌ | ❌ | ❌ | ❌ | ✅ 按任务分流 | ❌ | ✅ |
-| **Failover 故障切换** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ 密钥轮转 | ✅ |
-| **三层预算控制** | ❌ 迭代上限 | ❌ 无 | ❌ 硬上限 | ❌ 无 | ✅ grace_call | ❌ 无 | ✅ |
-| **OS 级沙箱** | ✅ Seatbelt | ❌ | ✅ Landlock | ❌ | ❌ | ❌ | ✅ |
-| **容器沙箱** | ❌ | ❌ | ❌ | ❌ | ✅ Docker/SSH | ✅ Docker/Modal | ✅ |
-| **Curator 闭环学习** | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ |
-| **会话 Fork** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| **Side-Git 快照** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| **Kanban 协作** | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ |
-| **FTS5 会话搜索** | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ |
-| **Honcho 用户建模** | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ |
-| **DM 配对安全** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| **审批门** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| **Agent-First 委托** | ❌ | ❌ | ❌ | ✅ 60+ Agent | ❌ | ❌ | ✅ |
-| **Gateway 网关** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ 25+ 渠道 | ✅ |
-| **Profile 多实例** | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ |
-| **6 主题 TUI** | ✅ | ❌ | ❌ | ❌ | ✅ Skin | ❌ | ✅ |
-| **4 语言 i18n** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| **跨平台** | ❌ Rust only | ✅ | ❌ Rust only | ✅ | ✅ | ✅ | ✅ |
+| **Auto Model Routing** | Yes (Flash pre-route) | - | - | - | - | - | Yes |
+| **Auxiliary Task Routing** | - | - | - | - | Yes (task split) | - | Yes |
+| **Failover Switch** | - | - | - | - | - | Yes (key rotation) | Yes |
+| **3-Level Budget Control** | - (iter cap) | - (none) | - (hard cap) | - (none) | Yes (grace_call) | - (none) | Yes |
+| **OS-Level Sandbox** | Yes (Seatbelt) | - | Yes (Landlock) | - | - | - | Yes |
+| **Container Sandbox** | - | - | - | - | Yes (Docker/SSH) | Yes (Docker/Modal) | Yes |
+| **Curator Closed-Loop Learning** | - | - | - | - | Yes | - | Yes |
+| **Session Fork** | Yes | - | - | - | - | - | Yes |
+| **Side-Git Snapshot** | Yes | - | - | - | - | - | Yes |
+| **Kanban Collaboration** | - | - | - | - | Yes | - | Yes |
+| **FTS5 Session Search** | - | - | - | - | Yes | - | Yes |
+| **Honcho User Modeling** | - | - | - | - | Yes | - | Yes |
+| **DM Pairing Security** | - | - | - | - | - | Yes | Yes |
+| **Approval Gate** | - | Yes | - | - | - | - | Yes |
+| **Agent-First Delegation** | - | - | - | Yes (60+ agents) | - | - | Yes |
+| **Gateway** | - | - | - | - | - | Yes (25+ channels) | Yes |
+| **Profile Multi-Instance** | - | - | - | - | Yes | - | Yes |
+| **6-Theme TUI** | Yes | - | - | - | Yes (Skin) | - | Yes |
+| **4-Language i18n** | Yes | - | - | - | - | - | Yes |
+| **Cross-Platform** | - (Rust only) | Yes | - (Rust only) | Yes | Yes | Yes | Yes |
 
-> GatherAgent 覆盖了所有 6 个项目中 **19 项核心特性**，其中 **9 项是独有创新**（三层路由/三层预算/双层沙箱组合等）。
+> GatherAgent covers all **19 core features** across 6 projects, with **9 unique innovations** (3-layer routing / 3-level budget / dual-sandbox combo, etc.).
 
 ---
 
-## 架构总览
+## Architecture Overview
 
 ```
 gather/
-├── agent/          # 核心循环 + 三层路由 + 三级预算 + 上下文管理
-├── tools/          # 自动发现注册 + Toolset 分组 + 条件启用
-├── memory/         # 可插拔记忆 + 用户建模 + FTS5 搜索
-├── skills/         # Curator 生命周期 + 质量标准 + 市场
-├── sandbox/        # OS 级 (Seatbelt/Landlock/Job Objects) + 容器级 (Docker/SSH/Modal)
-├── session/        # SQLite+FTS5 + Fork + Side-Git 快照 + Restore
-├── gateway/        # 多渠道消息 + 多 Agent 路由 + DM 配对
-├── kanban/         # SQLite 看板 + 状态机 + Dispatcher
-├── config/         # 多层加载 + Profile 多实例 + schema 校验
-├── tui/            # Textual TUI + 6 主题 + 4 语言
-├── security/       # 审批门 + DM 配对 + 审计日志
-├── providers/      # OpenAI/Anthropic/OpenRouter + Failover + 密钥池
-└── cli/            # Click CLI + setup 向导
+├── agent/          # Core loop + 3-layer routing + 3-level budget + context management
+├── tools/          # Auto-discovery registry + Toolset grouping + conditional enablement
+├── memory/         # Pluggable memory + user modeling + FTS5 search
+├── skills/         # Curator lifecycle + quality standards + marketplace
+├── sandbox/        # OS-level (Seatbelt/Landlock/Job Objects) + Container-level (Docker/SSH/Modal)
+├── session/        # SQLite+FTS5 + Fork + Side-Git snapshot + Restore
+├── gateway/        # Multi-channel messaging + multi-agent routing + DM pairing
+├── kanban/         # SQLite board + state machine + Dispatcher
+├── config/         # Multi-layer loading + Profile multi-instance + schema validation
+├── tui/            # Textual TUI + 6 themes + 4 languages
+├── security/       # Approval gate + DM pairing + audit log
+├── providers/      # OpenAI/Anthropic/OpenRouter + Failover + key pool
+└── cli/            # Click CLI + setup wizard
 ```
 
 ---
 
----
+## Core Innovations
 
-## 核心创新详解
-
-### 1. 三层模型路由 — 无惧故障、智能降级
+### 1. 3-Layer Model Routing — Fault-Tolerant, Smart Degradation
 
 ```
-Layer 0: 显式覆盖（--model gpt-4o --provider anthropic）
-    ↓ 无覆盖时
-Layer 1: Auxiliary 路由（Hermes-Agent）— 按任务分流
-    ↓ 非辅助任务时
-Layer 2: Auto 路由（DeepSeek-TUI）— Flash 预路由选模型
-    ↓ 默认配置
-Layer 3: 默认配置
-    ↓ 调用失败时
-Failover: 自动切换下一个提供商 + 密钥轮转（OpenClaw）
+Layer 0: Explicit override (--model gpt-4o --provider anthropic)
+    ↓ no override
+Layer 1: Auxiliary routing (from Hermes-Agent) — per-task dispatch
+    ↓ non-auxiliary task
+Layer 2: Auto routing (from DeepSeek-TUI) — Flash pre-router picks model
+    ↓ default config
+Layer 3: Default configuration
+    ↓ on call failure
+Failover: Auto-switch to next provider + key rotation (from OpenClaw)
 ```
 
-### 2. 三级预算控制 — 不会死循环
+### 2. 3-Level Budget Control — No Infinite Loops
 
 ```
-max_iterations (硬上限) → token_budget (Token 预算) → grace_call (宽限调用)
-     90 次                    可选                      预算耗尽后再一次总结
+max_iterations (hard cap) → token_budget (Token budget) → grace_call (grace call)
+     90 turns                    optional                    one final summary after budget exhausted
 ```
 
-### 3. 双层沙箱 — 按需隔离
+### 3. Dual-Layer Sandbox — Isolation On Demand
 
 ```
 Sandbox mode: auto
-├── 本地执行 → OS 级沙箱
+├── Local execution → OS-level sandbox
 │   ├── macOS: Seatbelt (sandbox-exec)
-│   ├── Linux: Landlock (kernel 5.13+) / unshare 降级
+│   ├── Linux: Landlock (kernel 5.13+) / unshare fallback
 │   └── Windows: Job Objects (pywin32)
-└── 网关/不信任 → 容器沙箱
-    ├── Docker (默认)
-    ├── SSH 远程
+└── Gateway / untrusted → Container sandbox
+    ├── Docker (default)
+    ├── SSH remote
     ├── Modal / Daytona
-    └── Singularity (HPC 场景)
+    └── Singularity (HPC scenarios)
 ```
 
-### 4. 闭环学习循环 — Skill 永不腐烂
+### 4. Closed-Loop Learning — Skills That Never Rot
 
 ```
-创建 → 使用 → Curator 检查 → 改进/归档
-  ↑                          |
-  └──── UserModel 反馈 ──────┘
+Create → Use → Curator check → Improve / Archive
+  ↑                                |
+  └──── UserModel feedback ───────┘
 ```
 
-### 5. 会话全生命周期 — 可分叉、可快照、可回滚
+### 5. Full Session Lifecycle — Fork, Snapshot, Rollback
 
 ```
-Fork ─── 分叉到新会话
-Snapshot ── Side-Git 每回合自动快照
-Restore ── 回滚到任意时间点
-Search ─── FTS5 全文搜索历史会话
-```
-
----
-
-## 四种运行模式
-
-| 模式 | 行为 | 来源 |
-|------|------|------|
-| **Plan** | 只读调查，不执行任何修改操作 | DeepSeek-TUI |
-| **Agent** | 交互模式，工具调用需审批门确认 | Claude-Code |
-| **YOLO** | 自动审批所有工具，信任工作区使用 | DeepSeek-TUI |
-| **Sandbox** | 所有命令在隔离容器中执行 | OpenClaw |
-
----
-
-## 配置层级
-
-```
-~/.gather/config.yaml                    # 全局（最高优先级）
-~/.gather/profiles/<name>/config.yaml    # Profile 级（gather -p <name>）
-<workspace>/.gather/config.yaml          # 项目级（不能覆盖密钥/提供商）
+Fork    ─── Branch to a new session
+Snapshot ── Side-Git auto-snapshot per turn
+Restore  ── Rollback to any point in time
+Search   ─── FTS5 full-text search across session history
 ```
 
 ---
 
-## 跨平台支持
+## Four Run Modes
 
-| 平台 | Shell | 沙箱 | 安装 |
-|------|-------|------|------|
+| Mode | Behavior | Origin |
+|------|----------|--------|
+| **Plan** | Read-only investigation, no modifications allowed | DeepSeek-TUI |
+| **Agent** | Interactive mode, tool calls require approval gate | Claude-Code |
+| **YOLO** | Auto-approve all tools, for trusted workspaces | DeepSeek-TUI |
+| **Sandbox** | All commands executed in isolated containers | OpenClaw |
+
+---
+
+## Configuration Hierarchy
+
+```
+~/.gather/config.yaml                    # Global (highest priority)
+~/.gather/profiles/<name>/config.yaml    # Profile level (gather -p <name>)
+<workspace>/.gather/config.yaml          # Project level (cannot override keys/providers)
+```
+
+---
+
+## Cross-Platform Support
+
+| Platform | Shell | Sandbox | Install |
+|----------|-------|---------|--------|
 | Linux | bash/sh | Landlock/unshare | `bash scripts/install.sh` |
 | macOS | bash/sh | Seatbelt | `bash scripts/install.sh` |
 | Windows | PowerShell/cmd | Job Objects | `powershell scripts/install.ps1` |
-| Docker | bash | 容器隔离 | `docker run cgaskjd/gather-agent` |
+| Docker | bash | Container isolation | `docker run cgaskjd/gather-agent` |
 
 ---
 
-## 致谢
+## Acknowledgments
 
-GatherAgent 站在巨人的肩膀上，感谢以下项目的启发：
+GatherAgent stands on the shoulders of giants. Credit to the following projects for inspiration:
 
-- [DeepSeek-TUI](https://github.com/nicepkg/deepseek-tui) — Auto 路由、前缀缓存、Fork/快照、多主题 TUI
-- [Claude-Code](https://github.com/anthropics/claude-code) — 审批门、插件 SDK、IDE 集成
-- [Codex](https://github.com/openai/codex) — OS 沙箱、快照测试、构建规范
-- [Everything-Claude-Code](https://github.com/anthropics/everything-claude-code) — Agent-First 委托、Hook 引擎、Rule 系统
-- [Hermes-Agent](https://github.com/nicepkg/hermes) — Curator 闭环、Honcho 建模、Kanban 协作、Profile 隔离
-- [OpenClaw](https://github.com/openclaw/openclaw) — Gateway 网关、DM 配对、Failover 切换、多渠道路由
+- [DeepSeek-TUI](https://github.com/nicepkg/deepseek-tui) — Auto routing, prefix cache, Fork/snapshot, multi-theme TUI
+- [Claude-Code](https://github.com/anthropics/claude-code) — Approval gate, plugin SDK, IDE integration
+- [Codex](https://github.com/openai/codex) — OS sandbox, snapshot testing, build specs
+- [Everything-Claude-Code](https://github.com/anthropics/everything-claude-code) — Agent-First delegation, Hook engine, Rule system
+- [Hermes-Agent](https://github.com/nicepkg/hermes) — Curator closed-loop, Honcho modeling, Kanban collaboration, Profile isolation
+- [OpenClaw](https://github.com/openclaw/openclaw) — Gateway, DM pairing, Failover switching, multi-channel routing
 
 ## License
 
