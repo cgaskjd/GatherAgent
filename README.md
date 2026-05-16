@@ -1,8 +1,94 @@
 # GatherAgent
 
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://python.org) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![GitHub](https://img.shields.io/badge/GitHub-CGaskjd%2FGatherAgent-black.svg)](https://github.com/CGaskjd/GatherAgent)
+
 > **聚六家之长，成一家之言** — The convergence agent born from a deep comparative analysis of 6 leading AI agent projects.
 
-GatherAgent 不是从零开始的又一个 Agent，而是对 DeepSeek-TUI、Claude-Code、Codex、Everything-Claude-Code、Hermes-Agent、OpenClaw 六大项目的深度对比后，取各家之精华、补各家之不足，汇聚而成的统一平台。
+---
+
+## 🚀 一键安装
+
+```bash
+pip install git+https://github.com/CGaskjd/GatherAgent.git
+```
+
+安装完成即可使用：
+
+```bash
+gather "explain this function"       # 单次对话
+gather                               # 启动 TUI 交互界面
+```
+
+<details>
+<summary><b>📦 其他安装方式</b></summary>
+
+```bash
+# 克隆安装（开发者推荐）
+git clone https://github.com/CGaskjd/GatherAgent.git
+cd GatherAgent
+pip install -e ".[all]"
+
+# Linux/macOS 一键脚本
+bash scripts/install.sh
+
+# Windows 一键脚本
+powershell -ExecutionPolicy Bypass -File scripts/install.ps1
+
+# Docker
+docker run --rm -it -e OPENAI_API_KEY -v "$PWD:/workspace" cgaskjd/gather-agent
+```
+
+</details>
+
+<details>
+<summary><b>⚙️ 快速配置</b></summary>
+
+```bash
+# 设置 API 密钥（首次使用）
+export OPENAI_API_KEY=sk-xxx         # Linux/macOS
+set OPENAI_API_KEY=sk-xxx            # Windows CMD
+$env:OPENAI_API_KEY="sk-xxx"         # Windows PowerShell
+
+# 或使用交互式向导
+gather setup
+
+# 检查环境
+gather doctor
+```
+
+</details>
+
+---
+
+## 💬 使用示例
+
+```bash
+# 基础用法
+gather "explain this function"           # 单次对话，输出结果
+
+# 模型选择
+gather -m gpt-4o "fix this bug"          # 指定 OpenAI GPT-4o
+gather --provider anthropic "review"     # 使用 Claude Sonnet 4
+gather --provider openrouter -m google/gemini-2.0-flash "hi"  # OpenRouter 任意模型
+
+# Auto 路由（Flash 预路由 → 智能选择模型+思考等级）
+gather --model auto "refactor this module"
+
+# 运行模式
+gather --yolo "deploy it"                # YOLO 模式（自动审批所有工具）
+gather -p coder "implement API"          # Profile 隔离（独立配置/记忆/技能）
+
+# TUI 交互界面（无参数时默认启动）
+gather                                   # 启动 TUI，6主题+4语言
+
+# 网关模式（Telegram/Discord/Slack）
+gather gateway start
+
+# 内置命令
+gather setup                             # 交互式配置向导
+gather doctor                            # 检查环境和依赖
+gather models                            # 列出可用模型提供商
+```
 
 ---
 
@@ -70,32 +156,6 @@ gather/
 ```
 
 ---
-
-## 快速开始
-
-```bash
-# 一行安装（Linux/macOS/Windows）
-pip install git+https://github.com/CGaskjd/GatherAgent.git
-
-# 或克隆安装
-git clone https://github.com/CGaskjd/GatherAgent.git
-cd GatherAgent
-pip install -e ".[all]"
-
-# 开始使用
-gather "explain this function"      # 单次对话
-gather --model auto "fix this bug"  # Auto 路由模式
-gather -p coder "refactor this"     # Profile 隔离
-gather --yolo "deploy it"           # 自动审批模式
-gather --tui                        # TUI 界面
-gather gateway start                # 启动网关（Telegram/Discord/Slack）
-```
-
-Docker 一键运行：
-
-```bash
-docker run --rm -it -e OPENAI_API_KEY -v "$PWD:/workspace" cgaskjd/gather-agent
-```
 
 ---
 
