@@ -38,6 +38,7 @@ dev = [
 docker = ["docker>=7.0"]
 voice = ["elevenlabs>=1.0", "whisper>=1.0"]
 vector = ["lancedb>=0.6", "sentence-transformers>=3.0"]
+desktop = ["fastapi>=0.111", "uvicorn>=0.30", "pydantic>=2.7"]
 all = ["gather-agent[docker,voice,vector]"]
 
 [project.scripts]

@@ -7,3 +7,8 @@ build/
 .env
 *.db
 .gather/
+
+# Desktop app build artifacts
+desktop/node_modules/
+desktop/dist/
+desktop/dist-electron/

@@ -206,5 +206,19 @@ def models():
     click.echo("\nOr use Ctrl+Shift+M in TUI to set any model interactively.")
 
 
+@main.command()
+@click.option("--dev", is_flag=True, help="Launch in development mode")
+@click.option("--port", default=18790, help="Backend port (default: 18790)")
+def desktop(dev, port):
+    """Launch GatherAgent Desktop (Electron + React)."""
+    try:
+        from gather.desktop.launcher import launch_desktop
+        launch_desktop(port=port, dev=dev)
+    except ImportError as e:
+        click.echo(f"Error: Desktop dependencies not installed: {e}")
+        click.echo("Install with: pip install gather-agent[desktop]")
+        click.echo("Then: cd desktop && npm install")
+
+
 if __name__ == "__main__":
     main()
